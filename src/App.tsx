@@ -1,10 +1,16 @@
-// メインアプリケーションコンポーネント
 import React from 'react';
+import { AuthProvider } from './contexts/AuthContext';
+import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { Home } from './pages/Home';
-import './styles/globals.css';
 
 function App() {
-  return <Home />;
+  return (
+    <AuthProvider>
+      <ProtectedRoute>
+        <Home />
+      </ProtectedRoute>
+    </AuthProvider>
+  );
 }
 
 export default App;
