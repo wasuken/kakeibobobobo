@@ -10,7 +10,12 @@ import {
   Target,
 } from "lucide-react";
 
-export type SectionKey = "dashboard" | "transactions" | "charts" | "analytics";
+export type SectionKey =
+  | "dashboard"
+  | "transactions"
+  | "charts"
+  | "analytics"
+  | "settings";
 
 interface NavigationTabsProps {
   activeSection: SectionKey;
@@ -52,6 +57,13 @@ const NavigationTabs: React.FC<NavigationTabsProps> = ({
       description: "トレンド・予測・目標",
       color: "orange",
     },
+    {
+      key: "settings" as SectionKey,
+      label: "設定",
+      icon: Settings,
+      description: "アカウント・セキュリティ",
+      color: "gray",
+    },
   ];
 
   const getColorClasses = (color: string, isActive: boolean) => {
@@ -68,6 +80,9 @@ const NavigationTabs: React.FC<NavigationTabsProps> = ({
       orange: isActive
         ? "bg-orange-500 text-white border-orange-500"
         : "text-orange-600 border-orange-200 hover:bg-orange-50",
+      gray: isActive
+        ? "bg-gray-500 text-white border-gray-500"
+        : "text-gray-600 border-gray-200 hover:bg-gray-50",
     };
     return colorMap[color as keyof typeof colorMap] || colorMap.blue;
   };

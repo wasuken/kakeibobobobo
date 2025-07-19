@@ -89,3 +89,31 @@ export interface FinancialAdvice {
   actionable?: boolean;
   priority?: "high" | "medium" | "low";
 }
+
+// 設定パネル用型定義
+export interface UserSettings {
+  theme: "light" | "dark" | "auto";
+  currency: "JPY" | "USD" | "EUR";
+  notifications: {
+    budget: boolean;
+    monthly: boolean;
+    goals: boolean;
+  };
+  privacy: {
+    analytics: boolean;
+    datasharing: boolean;
+  };
+}
+
+export interface SecuritySettings {
+  twoFactorEnabled: boolean;
+  passwordLastChanged: Date;
+  loginHistory: LoginRecord[];
+}
+
+export interface LoginRecord {
+  timestamp: Date;
+  ipAddress: string;
+  userAgent: string;
+  success: boolean;
+}

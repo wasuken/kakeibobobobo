@@ -9,6 +9,7 @@ import DashboardPanel from "../components/panels/DashboardPanel";
 import TransactionsPanel from "../components/panels/TransactionsPanel";
 import ChartsPanel from "../components/panels/ChartsPanel";
 import AnalyticsPanel from "../components/panels/AnalyticsPanel";
+import SettingsPanel from "../components/panels/SettingsPanel";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 
 export const Home: React.FC = () => {
@@ -99,6 +100,7 @@ export const Home: React.FC = () => {
               <ChartsPanel transactions={transactions} />
             )}
 
+            {activeSection === "settings" && <SettingsPanel />}
             {activeSection === "analytics" && (
               <AnalyticsPanel transactions={transactions} />
             )}

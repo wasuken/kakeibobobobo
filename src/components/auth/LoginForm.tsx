@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
+import PasswordResetForm from "./PasswordResetForm";
 
 export const LoginForm: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -7,8 +8,17 @@ export const LoginForm: React.FC = () => {
   const [isSignup, setIsSignup] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPasswordReset, setShowPasswordReset] = useState(false);
 
   const { login, signup } = useAuth();
+
+  if (showPasswordReset) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <PasswordResetForm onBack={() => setShowPasswordReset(false)} />
+      </div>
+    );
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -123,6 +133,13 @@ export const LoginForm: React.FC = () => {
             {isSignup
               ? "すでにアカウントをお持ちですか？ログイン"
               : "アカウントをお持ちでない方はこちら"}
+          </button>
+
+          <button
+            onClick={() => setShowPasswordReset(true)}
+            className="text-blue-600 hover:text-blue-800 text-sm underline"
+          >
+            パスワードを忘れた方はこちら
           </button>
         </div>
       </div>
