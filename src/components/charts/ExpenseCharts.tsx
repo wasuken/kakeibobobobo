@@ -46,6 +46,15 @@ const ExpenseCharts: React.FC<ExpenseChartsProps> = ({ expenses }) => {
       categoryTotals[expense.category] =
         (categoryTotals[expense.category] || 0) + expense.amount;
     });
+    console.log(
+      Object.entries(categoryTotals)
+        .map(([category, amount]) => ({
+          category,
+          amount,
+          color: CATEGORY_COLORS[category] || "#BDC3C7",
+        }))
+        .sort((a, b) => b.amount - a.amount),
+    );
 
     return Object.entries(categoryTotals)
       .map(([category, amount]) => ({
@@ -230,15 +239,15 @@ const ExpenseCharts: React.FC<ExpenseChartsProps> = ({ expenses }) => {
             <BarChart data={categoryData} layout="horizontal">
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis
-                type="number"
-                tickFormatter={(value) => `¥${value.toLocaleString()}`}
-                tick={{ fontSize: 12 }}
-              />
-              <YAxis
                 type="category"
                 dataKey="category"
                 tick={{ fontSize: 12 }}
                 width={60}
+              />
+              <YAxis
+                type="number"
+                tickFormatter={(value) => `¥${value.toLocaleString()}`}
+                tick={{ fontSize: 12 }}
               />
               <Tooltip
                 formatter={(value: number) => [
@@ -246,11 +255,7 @@ const ExpenseCharts: React.FC<ExpenseChartsProps> = ({ expenses }) => {
                   "支出額",
                 ]}
               />
-              <Bar dataKey="amount" fill="#8884d8">
-                {categoryData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
-              </Bar>
+              <Bar dataKey="amount" fill="#8884d8" />
             </BarChart>
           </ResponsiveContainer>
         </div>
