@@ -1,10 +1,8 @@
 import React, { useState } from "react";
 import {
-  LineChart,
   Line,
   AreaChart,
   Area,
-  BarChart,
   Bar,
   ComposedChart,
   XAxis,
@@ -351,7 +349,7 @@ const DetailedCharts: React.FC<DetailedChartsProps> = ({ transactions }) => {
             </h3>
             {categoryTrends.length > 0 ? (
               <div className="space-y-3">
-                {categoryTrends.slice(0, 8).map((trend, index) => (
+                {categoryTrends.slice(0, 8).map((trend) => (
                   <div
                     key={trend.category}
                     className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"

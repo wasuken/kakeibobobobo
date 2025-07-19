@@ -15,17 +15,17 @@ import {
 const SettingsPanel: React.FC = () => {
   const { currentUser, logout } = useAuth();
   const [showPasswordReset, setShowPasswordReset] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  // const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const handleExportData = () => {
     // TODO: データエクスポート機能（将来実装）
     alert("データエクスポート機能は将来実装予定です");
   };
 
-  const handleDeleteAccount = () => {
-    // TODO: アカウント削除機能（将来実装）
-    alert("アカウント削除機能は将来実装予定です");
-  };
+  // const handleDeleteAccount = () => {
+  //   // TODO: アカウント削除機能（将来実装）
+  //   alert("アカウント削除機能は将来実装予定です");
+  // };
 
   if (showPasswordReset) {
     return (
@@ -184,7 +184,6 @@ const SettingsPanel: React.FC = () => {
               </p>
             </div>
             <button
-              onClick={() => setShowDeleteConfirm(true)}
               disabled
               className="bg-red-300 text-red-500 px-4 py-2 rounded-md cursor-not-allowed"
             >

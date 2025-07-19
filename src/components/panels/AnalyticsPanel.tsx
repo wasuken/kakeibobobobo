@@ -145,7 +145,7 @@ const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({ transactions }) => {
           月別パフォーマンス（直近6ヶ月）
         </h3>
         <div className="space-y-4">
-          {monthlyData.slice(-6).map((month, index) => (
+          {monthlyData.slice(-6).map((month) => (
             <div
               key={month.month}
               className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"

@@ -13,16 +13,18 @@ import {
   BarChart3,
 } from "lucide-react";
 
+import { SectionKey } from "../navigation/NavigationTabs";
+
 interface DashboardPanelProps {
   transactions: Transaction[];
-  onSectionChange?: (section: string) => void;
+  onSectionChange?: (section: SectionKey) => void;
 }
 
 const DashboardPanel: React.FC<DashboardPanelProps> = ({
   transactions,
   onSectionChange,
 }) => {
-  const { trendData, monthlyData } = useChartData(transactions);
+  const { trendData } = useChartData(transactions);
 
   // 最新取引5件
   const recentTransactions = transactions

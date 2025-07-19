@@ -1,4 +1,3 @@
-import React from "react";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import { Home } from "./pages/Home";

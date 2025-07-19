@@ -5,9 +5,6 @@ import {
   BarChart3,
   TrendingUp,
   Settings,
-  Wallet,
-  Calendar,
-  Target,
 } from "lucide-react";
 
 export type SectionKey =

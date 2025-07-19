@@ -10,7 +10,6 @@ import {
   PieChart,
   Pie,
   Cell,
-  LineChart,
   Line,
   ComposedChart,
 } from "recharts";
