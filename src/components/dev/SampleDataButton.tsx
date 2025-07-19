@@ -17,8 +17,8 @@ const SampleDataButton: React.FC = () => {
     setMessage("");
 
     try {
-      await addSampleDataToFirestore(currentUser.uid, 30);
-      setMessage("✅ 30件のサンプルデータを追加しました！");
+      await addSampleDataToFirestore(currentUser.uid, 40);
+      setMessage("✅ 40件のサンプルデータ（収支混合）を追加しました！");
     } catch (error) {
       console.error("Error adding sample data:", error);
       setMessage("❌ サンプルデータの追加に失敗しました");
@@ -38,7 +38,7 @@ const SampleDataButton: React.FC = () => {
         <div>
           <h3 className="text-sm font-medium text-yellow-800">開発者モード</h3>
           <p className="text-sm text-yellow-700 mt-1">
-            チャート表示のためのサンプルデータを追加できます
+            収支チャート表示のためのサンプルデータを追加できます
           </p>
         </div>
         <button

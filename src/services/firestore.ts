@@ -10,77 +10,164 @@ import {
   Timestamp,
 } from "firebase/firestore";
 import { db } from "./firebase";
-import { Expense } from "../types";
+import { Transaction, TransactionType } from "../types";
 
-// ユーザー別のexpensesコレクションを取得
-const getUserExpensesCollection = (userId: string) => {
-  return collection(db, `users/${userId}/expenses`);
+// ユーザー別のtransactionsコレクションを取得
+const getUserTransactionsCollection = (userId: string) => {
+  return collection(db, `users/${userId}/transactions`);
 };
 
-// 支出を追加
-export const addExpense = async (
+// 取引を追加
+export const addTransaction = async (
   userId: string,
-  expense: Omit<Expense, "id" | "createdAt">,
+  transaction: Omit<Transaction, "id" | "createdAt">,
 ) => {
   try {
-    const expensesCollection = getUserExpensesCollection(userId);
-    const docRef = await addDoc(expensesCollection, {
-      ...expense,
-      amount: Number(expense.amount), // 数値として保存
+    const transactionsCollection = getUserTransactionsCollection(userId);
+    const docRef = await addDoc(transactionsCollection, {
+      ...transaction,
+      amount: Number(transaction.amount),
       createdAt: Timestamp.now(),
     });
 
     return docRef.id;
   } catch (error) {
-    console.error("支出の追加に失敗しました:", error);
+    console.error("取引の追加に失敗しました:", error);
     throw error;
   }
 };
 
-// 支出一覧を取得
-export const getExpenses = async (userId: string): Promise<Expense[]> => {
+// 取引一覧を取得
+export const getTransactions = async (
+  userId: string,
+): Promise<Transaction[]> => {
   try {
-    const expensesCollection = getUserExpensesCollection(userId);
-    const q = query(expensesCollection, orderBy("createdAt", "desc"));
+    const transactionsCollection = getUserTransactionsCollection(userId);
+    const q = query(transactionsCollection, orderBy("createdAt", "desc"));
     const querySnapshot = await getDocs(q);
 
     return querySnapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
       createdAt: doc.data().createdAt?.toDate() || new Date(),
-    })) as Expense[];
+    })) as Transaction[];
+  } catch (error) {
+    console.error("取引の取得に失敗しました:", error);
+    throw error;
+  }
+};
+
+// 収入のみ取得
+export const getIncomes = async (userId: string): Promise<Transaction[]> => {
+  try {
+    const transactionsCollection = getUserTransactionsCollection(userId);
+    const q = query(
+      transactionsCollection,
+      where("type", "==", "income"),
+      orderBy("createdAt", "desc"),
+    );
+    const querySnapshot = await getDocs(q);
+
+    return querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+      createdAt: doc.data().createdAt?.toDate() || new Date(),
+    })) as Transaction[];
+  } catch (error) {
+    console.error("収入の取得に失敗しました:", error);
+    throw error;
+  }
+};
+
+// 支出のみ取得
+export const getExpenses = async (userId: string): Promise<Transaction[]> => {
+  try {
+    const transactionsCollection = getUserTransactionsCollection(userId);
+    const q = query(
+      transactionsCollection,
+      where("type", "==", "expense"),
+      orderBy("createdAt", "desc"),
+    );
+    const querySnapshot = await getDocs(q);
+
+    return querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+      createdAt: doc.data().createdAt?.toDate() || new Date(),
+    })) as Transaction[];
   } catch (error) {
     console.error("支出の取得に失敗しました:", error);
     throw error;
   }
 };
 
-// 支出を削除
-export const deleteExpense = async (userId: string, expenseId: string) => {
+// 取引を削除
+export const deleteTransaction = async (
+  userId: string,
+  transactionId: string,
+) => {
   try {
-    const expenseDoc = doc(db, `users/${userId}/expenses`, expenseId);
-    await deleteDoc(expenseDoc);
+    const transactionDoc = doc(
+      db,
+      `users/${userId}/transactions`,
+      transactionId,
+    );
+    await deleteDoc(transactionDoc);
   } catch (error) {
-    console.error("支出の削除に失敗しました:", error);
+    console.error("取引の削除に失敗しました:", error);
     throw error;
   }
 };
 
 // カテゴリ別の合計を取得
-export const getExpensesByCategory = async (
+export const getTransactionsByCategory = async (
   userId: string,
+  type?: TransactionType,
 ): Promise<Record<string, number>> => {
   try {
-    const expenses = await getExpenses(userId);
-    return expenses.reduce(
-      (acc, expense) => {
-        acc[expense.category] = (acc[expense.category] || 0) + expense.amount;
+    const transactions = type
+      ? type === "income"
+        ? await getIncomes(userId)
+        : await getExpenses(userId)
+      : await getTransactions(userId);
+
+    return transactions.reduce(
+      (acc, transaction) => {
+        if (!type || transaction.type === type) {
+          acc[transaction.category] =
+            (acc[transaction.category] || 0) + transaction.amount;
+        }
         return acc;
       },
       {} as Record<string, number>,
     );
   } catch (error) {
     console.error("カテゴリ別集計の取得に失敗しました:", error);
+    throw error;
+  }
+};
+
+// 収支サマリー取得
+export const getFinancialSummary = async (userId: string) => {
+  try {
+    const transactions = await getTransactions(userId);
+
+    const income = transactions
+      .filter((t) => t.type === "income")
+      .reduce((sum, t) => sum + t.amount, 0);
+
+    const expense = transactions
+      .filter((t) => t.type === "expense")
+      .reduce((sum, t) => sum + t.amount, 0);
+
+    return {
+      income,
+      expense,
+      balance: income - expense,
+      transactionCount: transactions.length,
+    };
+  } catch (error) {
+    console.error("収支サマリーの取得に失敗しました:", error);
     throw error;
   }
 };

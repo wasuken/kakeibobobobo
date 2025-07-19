@@ -1,15 +1,46 @@
 import { addDoc, collection } from "firebase/firestore";
 import { db } from "../services/firebase";
+import { TransactionType } from "../types";
 
-export interface SampleExpense {
+export interface SampleTransaction {
   amount: number;
+  type: TransactionType;
   category: string;
   description: string;
   date: string;
 }
 
-// カテゴリと説明のサンプルデータ
-const categories = [
+// 収入カテゴリと説明のサンプルデータ
+const incomeCategories = [
+  {
+    name: "給与",
+    descriptions: ["基本給", "残業代", "賞与", "手当"],
+  },
+  {
+    name: "ボーナス",
+    descriptions: ["夏のボーナス", "冬のボーナス", "決算賞与", "特別賞与"],
+  },
+  {
+    name: "副業",
+    descriptions: [
+      "フリーランス",
+      "アルバイト",
+      "ウーバーイーツ",
+      "ブログ収入",
+    ],
+  },
+  {
+    name: "投資",
+    descriptions: ["配当金", "株式売却益", "仮想通貨", "不動産収入"],
+  },
+  {
+    name: "その他収入",
+    descriptions: ["お祝い金", "還付金", "売上", "臨時収入"],
+  },
+];
+
+// 支出カテゴリと説明のサンプルデータ
+const expenseCategories = [
   {
     name: "食費",
     descriptions: ["コンビニ", "スーパー", "外食", "カフェ", "お菓子"],
@@ -40,23 +71,38 @@ const categories = [
   },
 ];
 
-// ランダムな金額生成（カテゴリ別に現実的な範囲）
-const getRandomAmount = (category: string): number => {
-  switch (category) {
-    case "食費":
-      return Math.floor(Math.random() * 3000) + 300; // 300-3300円
-    case "交通費":
-      return Math.floor(Math.random() * 1500) + 200; // 200-1700円
-    case "娯楽":
-      return Math.floor(Math.random() * 5000) + 500; // 500-5500円
-    case "日用品":
-      return Math.floor(Math.random() * 2000) + 100; // 100-2100円
-    case "衣服":
-      return Math.floor(Math.random() * 10000) + 1000; // 1000-11000円
-    case "医療費":
-      return Math.floor(Math.random() * 5000) + 500; // 500-5500円
-    default:
-      return Math.floor(Math.random() * 3000) + 200; // 200-3200円
+// ランダムな金額生成
+const getRandomAmount = (type: TransactionType, category: string): number => {
+  if (type === "income") {
+    switch (category) {
+      case "給与":
+        return Math.floor(Math.random() * 100000) + 200000; // 200,000-300,000円
+      case "ボーナス":
+        return Math.floor(Math.random() * 300000) + 200000; // 200,000-500,000円
+      case "副業":
+        return Math.floor(Math.random() * 50000) + 10000; // 10,000-60,000円
+      case "投資":
+        return Math.floor(Math.random() * 20000) + 5000; // 5,000-25,000円
+      default:
+        return Math.floor(Math.random() * 30000) + 5000; // 5,000-35,000円
+    }
+  } else {
+    switch (category) {
+      case "食費":
+        return Math.floor(Math.random() * 3000) + 300; // 300-3,300円
+      case "交通費":
+        return Math.floor(Math.random() * 1500) + 200; // 200-1,700円
+      case "娯楽":
+        return Math.floor(Math.random() * 5000) + 500; // 500-5,500円
+      case "日用品":
+        return Math.floor(Math.random() * 2000) + 100; // 100-2,100円
+      case "衣服":
+        return Math.floor(Math.random() * 10000) + 1000; // 1,000-11,000円
+      case "医療費":
+        return Math.floor(Math.random() * 5000) + 500; // 500-5,500円
+      default:
+        return Math.floor(Math.random() * 3000) + 200; // 200-3,200円
+    }
   }
 };
 
@@ -65,14 +111,21 @@ const getRandomDate = (): string => {
   const today = new Date();
   const daysAgo = Math.floor(Math.random() * 30);
   const randomDate = new Date(today.getTime() - daysAgo * 24 * 60 * 60 * 1000);
-  return randomDate.toISOString().split("T")[0]; // YYYY-MM-DD形式
+  return randomDate.toISOString().split("T")[0];
 };
 
 // サンプルデータ生成
-export const generateSampleExpenses = (count: number = 50): SampleExpense[] => {
-  const sampleData: SampleExpense[] = [];
+export const generateSampleTransactions = (
+  count: number = 50,
+): SampleTransaction[] => {
+  const sampleData: SampleTransaction[] = [];
 
   for (let i = 0; i < count; i++) {
+    // 収入:支出 = 1:3 の割合で生成
+    const isIncome = Math.random() < 0.25;
+    const type: TransactionType = isIncome ? "income" : "expense";
+
+    const categories = type === "income" ? incomeCategories : expenseCategories;
     const randomCategory =
       categories[Math.floor(Math.random() * categories.length)];
     const randomDescription =
@@ -81,7 +134,8 @@ export const generateSampleExpenses = (count: number = 50): SampleExpense[] => {
       ];
 
     sampleData.push({
-      amount: getRandomAmount(randomCategory.name),
+      amount: getRandomAmount(type, randomCategory.name),
+      type,
       category: randomCategory.name,
       description: randomDescription,
       date: getRandomDate(),
@@ -100,35 +154,39 @@ export const addSampleDataToFirestore = async (
   count: number = 50,
 ) => {
   try {
-    const sampleExpenses = generateSampleExpenses(count);
-    const expensesRef = collection(db, `users/${userId}/expenses`);
+    const sampleTransactions = generateSampleTransactions(count);
+    const transactionsRef = collection(db, `users/${userId}/transactions`);
 
-    console.log(`${count}件のサンプルデータを追加中...`);
+    console.log(`${count}件のサンプルデータ（収支混合）を追加中...`);
 
-    const promises = sampleExpenses.map((expense, index) => {
-      return addDoc(expensesRef, {
-        ...expense,
-        createdAt: new Date(expense.date + "T12:00:00"), // 日付を適切なTimestamp形式に
+    const promises = sampleTransactions.map((transaction) => {
+      return addDoc(transactionsRef, {
+        ...transaction,
+        createdAt: new Date(transaction.date + "T12:00:00"),
         updatedAt: new Date(),
       });
     });
 
     await Promise.all(promises);
     console.log(`✅ ${count}件のサンプルデータを正常に追加しました！`);
+
+    // 収支内訳をログ出力
+    const incomeCount = sampleTransactions.filter(
+      (t) => t.type === "income",
+    ).length;
+    const expenseCount = sampleTransactions.filter(
+      (t) => t.type === "expense",
+    ).length;
+    console.log(`📊 内訳: 収入${incomeCount}件, 支出${expenseCount}件`);
   } catch (error) {
     console.error("❌ サンプルデータの追加に失敗:", error);
     throw error;
   }
 };
 
-// 開発用: コンソールからサンプルデータを追加
-// 使用方法:
-// import { addSampleDataToFirestore } from './utils/generateSampleData';
-// addSampleDataToFirestore('your-user-id', 30);
-
 // サンプルデータをJSONで出力（デバッグ用）
 export const exportSampleDataAsJson = (count: number = 10) => {
-  const data = generateSampleExpenses(count);
+  const data = generateSampleTransactions(count);
   console.log("📊 サンプルデータ (JSON):");
   console.log(JSON.stringify(data, null, 2));
   return data;

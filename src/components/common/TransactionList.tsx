@@ -1,51 +1,60 @@
 import React, { useState, useMemo } from "react";
-import { Expense } from "../../types";
+import { Transaction, TransactionType } from "../../types";
 import Pagination from "./Pagination";
 
-interface ExpenseListProps {
-  expenses: Expense[];
-  onDeleteExpense: (id: string) => void;
+interface TransactionListProps {
+  transactions: Transaction[];
+  onDeleteTransaction: (id: string) => void;
 }
 
-export const ExpenseList: React.FC<ExpenseListProps> = ({
-  expenses,
-  onDeleteExpense,
+export const TransactionList: React.FC<TransactionListProps> = ({
+  transactions,
+  onDeleteTransaction,
 }) => {
-  // フィルター・検索・ページネーション用ステート
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [selectedType, setSelectedType] = useState<"all" | TransactionType>(
+    "all",
+  );
   const [sortBy, setSortBy] = useState<"date" | "amount" | "category">("date");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
   // カテゴリ一覧を取得
   const categories = useMemo(() => {
     const uniqueCategories = Array.from(
-      new Set(expenses.map((expense) => expense.category)),
+      new Set(transactions.map((transaction) => transaction.category)),
     );
     return ["all", ...uniqueCategories.sort()];
-  }, [expenses]);
+  }, [transactions]);
 
-  // フィルター・検索・ソート済みの支出データ
-  const filteredAndSortedExpenses = useMemo(() => {
-    let filtered = expenses;
+  // フィルター・検索・ソート済みのデータ
+  const filteredAndSortedTransactions = useMemo(() => {
+    let filtered = transactions;
+
+    // タイプフィルター
+    if (selectedType !== "all") {
+      filtered = filtered.filter(
+        (transaction) => transaction.type === selectedType,
+      );
+    }
 
     // カテゴリフィルター
     if (selectedCategory !== "all") {
       filtered = filtered.filter(
-        (expense) => expense.category === selectedCategory,
+        (transaction) => transaction.category === selectedCategory,
       );
     }
 
     // 検索フィルター
     if (searchTerm) {
       filtered = filtered.filter(
-        (expense) =>
-          expense.description
+        (transaction) =>
+          transaction.description
             .toLowerCase()
             .includes(searchTerm.toLowerCase()) ||
-          expense.category.toLowerCase().includes(searchTerm.toLowerCase()),
+          transaction.category.toLowerCase().includes(searchTerm.toLowerCase()),
       );
     }
 
@@ -70,34 +79,41 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
     });
 
     return filtered;
-  }, [expenses, selectedCategory, searchTerm, sortBy, sortOrder]);
+  }, [
+    transactions,
+    selectedType,
+    selectedCategory,
+    searchTerm,
+    sortBy,
+    sortOrder,
+  ]);
 
   // ページネーション計算
-  const totalItems = filteredAndSortedExpenses.length;
+  const totalItems = filteredAndSortedTransactions.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentExpenses = filteredAndSortedExpenses.slice(
+  const currentTransactions = filteredAndSortedTransactions.slice(
     startIndex,
     startIndex + itemsPerPage,
   );
 
-  // 総計算（フィルター済み）
-  const total = filteredAndSortedExpenses.reduce(
-    (sum, expense) => sum + expense.amount,
-    0,
-  );
+  // 合計計算（フィルター済み）
+  const summary = useMemo(() => {
+    const income = filteredAndSortedTransactions
+      .filter((t) => t.type === "income")
+      .reduce((sum, t) => sum + t.amount, 0);
 
-  // ページ変更時の処理
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-  };
+    const expense = filteredAndSortedTransactions
+      .filter((t) => t.type === "expense")
+      .reduce((sum, t) => sum + t.amount, 0);
 
-  // フィルター変更時はページを1に戻す
+    return { income, expense, balance: income - expense };
+  }, [filteredAndSortedTransactions]);
+
   const handleFilterChange = () => {
     setCurrentPage(1);
   };
 
-  // ソート変更
   const handleSortChange = (field: "date" | "amount" | "category") => {
     if (sortBy === field) {
       setSortOrder(sortOrder === "asc" ? "desc" : "asc");
@@ -112,17 +128,33 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
     <div className="bg-white rounded-lg shadow-md p-6">
       {/* ヘッダー */}
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-semibold">支出一覧</h2>
+        <h2 className="text-xl font-semibold">取引一覧</h2>
         <div className="text-right">
-          <div className="text-2xl font-bold text-red-600">
-            ¥{total.toLocaleString()}
+          <div className="space-y-1">
+            <div className="text-sm">
+              <span className="text-green-600 font-semibold">
+                収入: ¥{summary.income.toLocaleString()}
+              </span>
+            </div>
+            <div className="text-sm">
+              <span className="text-red-600 font-semibold">
+                支出: ¥{summary.expense.toLocaleString()}
+              </span>
+            </div>
+            <div
+              className={`text-lg font-bold ${
+                summary.balance >= 0 ? "text-green-600" : "text-red-600"
+              }`}
+            >
+              収支: ¥{summary.balance.toLocaleString()}
+            </div>
           </div>
-          <div className="text-sm text-gray-500">{totalItems}件の支出</div>
+          <div className="text-sm text-gray-500">{totalItems}件の取引</div>
         </div>
       </div>
 
       {/* フィルター・検索エリア */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
         {/* 検索 */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -138,6 +170,25 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
             placeholder="説明・カテゴリで検索"
             className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           />
+        </div>
+
+        {/* タイプフィルター */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            種別
+          </label>
+          <select
+            value={selectedType}
+            onChange={(e) => {
+              setSelectedType(e.target.value as "all" | TransactionType);
+              handleFilterChange();
+            }}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="all">すべて</option>
+            <option value="income">収入</option>
+            <option value="expense">支出</option>
+          </select>
         </div>
 
         {/* カテゴリフィルター */}
@@ -186,7 +237,7 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
           <label className="block text-sm font-medium text-gray-700 mb-1">
             並び順
           </label>
-          <div className="flex space-x-2">
+          <div className="flex space-x-1">
             {[
               { key: "date", label: "日付" },
               { key: "amount", label: "金額" },
@@ -213,32 +264,53 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
         </div>
       </div>
 
-      {/* 支出一覧 */}
+      {/* 取引一覧 */}
       <div className="space-y-2">
-        {currentExpenses.length === 0 ? (
+        {currentTransactions.length === 0 ? (
           <p className="text-gray-500 text-center py-8">
             {totalItems === 0
-              ? "まだ支出が記録されていません"
-              : "検索条件に一致する支出がありません"}
+              ? "まだ取引が記録されていません"
+              : "検索条件に一致する取引がありません"}
           </p>
         ) : (
-          currentExpenses.map((expense) => (
+          currentTransactions.map((transaction) => (
             <div
-              key={expense.id}
-              className="flex justify-between items-center p-3 border border-gray-200 rounded-md hover:bg-gray-50"
+              key={transaction.id}
+              className={`flex justify-between items-center p-3 border-l-4 border border-gray-200 rounded-md hover:bg-gray-50 ${
+                transaction.type === "income"
+                  ? "border-l-green-500 bg-green-50"
+                  : "border-l-red-500 bg-red-50"
+              }`}
             >
               <div>
-                <div className="font-medium">{expense.description}</div>
+                <div className="font-medium">{transaction.description}</div>
                 <div className="text-sm text-gray-500">
-                  {expense.category} • {expense.date}
+                  <span
+                    className={`font-medium ${
+                      transaction.type === "income"
+                        ? "text-green-600"
+                        : "text-red-600"
+                    }`}
+                  >
+                    {transaction.type === "income" ? "収入" : "支出"}
+                  </span>
+                  {" • "}
+                  {transaction.category} • {transaction.date}
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-semibold">
-                  ¥{expense.amount.toLocaleString()}
+                <span
+                  className={`font-semibold ${
+                    transaction.type === "income"
+                      ? "text-green-600"
+                      : "text-red-600"
+                  }`}
+                >
+                  {transaction.type === "income" ? "+" : "-"}¥
+                  {transaction.amount.toLocaleString()}
                 </span>
                 <button
-                  onClick={() => onDeleteExpense(expense.id)}
+                  onClick={() => onDeleteTransaction(transaction.id)}
                   className="text-red-500 hover:text-red-700 text-sm px-2 py-1 rounded hover:bg-red-50"
                 >
                   削除
@@ -253,7 +325,7 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
       <Pagination
         currentPage={currentPage}
         totalPages={totalPages}
-        onPageChange={handlePageChange}
+        onPageChange={setCurrentPage}
         totalItems={totalItems}
         itemsPerPage={itemsPerPage}
         showInfo={true}

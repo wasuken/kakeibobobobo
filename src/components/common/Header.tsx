@@ -7,7 +7,9 @@ export const Header: React.FC = () => {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold">家計簿アプリ</h1>
-          <p className="text-blue-100">支出を記録して、家計を管理しよう</p>
+          <p className="text-blue-100">
+            収入・支出を記録して、家計を管理しよう
+          </p>
         </div>
         <UserProfile />
       </div>
