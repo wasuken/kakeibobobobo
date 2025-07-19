@@ -1,3 +1,4 @@
+// src/hooks/useTransactions.ts を修正
 import { useState, useEffect } from "react";
 import { Transaction, TransactionType } from "../types";
 import { useAuth } from "../contexts/AuthContext";
@@ -20,10 +21,15 @@ export const useTransactions = () => {
 
     try {
       setLoading(true);
+      setError(""); // エラーをクリア
+      console.log("🔄 取引データを再取得中...");
+
       const userTransactions = await firestoreService.getTransactions(
         currentUser.uid,
       );
       setTransactions(userTransactions);
+
+      console.log(`✅ ${userTransactions.length}件の取引を取得しました`);
     } catch (err) {
       console.error("取引の読み込みに失敗:", err);
       setError("取引の読み込みに失敗しました");
@@ -32,42 +38,55 @@ export const useTransactions = () => {
     }
   };
 
-  // 取引を追加
+  // 取引を追加（即座に再取得）
   const addTransaction = async (
     transaction: Omit<Transaction, "id" | "createdAt">,
   ) => {
     if (!currentUser) return;
 
     try {
+      setError(""); // エラーをクリア
+      console.log("💰 取引を追加中...", transaction);
+
       const transactionId = await firestoreService.addTransaction(
         currentUser.uid,
         transaction,
       );
-      const newTransaction: Transaction = {
-        ...transaction,
-        id: transactionId,
-        createdAt: new Date(),
-      };
-      setTransactions((prev) => [newTransaction, ...prev]);
+
+      console.log(`✅ 取引追加完了 ID: ${transactionId}`);
+
+      // 🔥 重要：追加後に即座に全データを再取得
+      await loadTransactions();
     } catch (err) {
       console.error("取引の追加に失敗:", err);
       setError("取引の追加に失敗しました");
     }
   };
 
-  // 取引を削除
+  // 取引を削除（即座に再取得）
   const deleteTransaction = async (transactionId: string) => {
     if (!currentUser) return;
 
     try {
+      setError(""); // エラーをクリア
+      console.log("🗑️ 取引を削除中...", transactionId);
+
       await firestoreService.deleteTransaction(currentUser.uid, transactionId);
-      setTransactions((prev) =>
-        prev.filter((transaction) => transaction.id !== transactionId),
-      );
+
+      console.log(`✅ 取引削除完了 ID: ${transactionId}`);
+
+      // 🔥 重要：削除後に即座に全データを再取得
+      await loadTransactions();
     } catch (err) {
       console.error("取引の削除に失敗:", err);
       setError("取引の削除に失敗しました");
     }
+  };
+
+  // 強制リロード（最悪の場合）
+  const forceReload = () => {
+    console.log("🔄 ページをリロードします...");
+    window.location.reload();
   };
 
   // フィルター機能
@@ -104,7 +123,8 @@ export const useTransactions = () => {
     error,
     addTransaction,
     deleteTransaction,
-    refreshTransactions: loadTransactions,
+    refreshTransactions: loadTransactions, // 手動再取得
+    forceReload, // 強制リロード
     getTransactionsByType,
     getSummary,
   };
