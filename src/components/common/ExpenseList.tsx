@@ -1,13 +1,16 @@
 // 支出一覧表示コンポーネント
-import React from 'react';
-import { Expense } from '../../types';
+import React from "react";
+import { Expense } from "../../types";
 
 interface ExpenseListProps {
   expenses: Expense[];
   onDeleteExpense: (id: string) => void;
 }
 
-export const ExpenseList: React.FC<ExpenseListProps> = ({ expenses, onDeleteExpense }) => {
+export const ExpenseList: React.FC<ExpenseListProps> = ({
+  expenses,
+  onDeleteExpense,
+}) => {
   const total = expenses.reduce((sum, expense) => sum + expense.amount, 0);
 
   return (
@@ -37,7 +40,9 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({ expenses, onDeleteExpe
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-semibold">¥{expense.amount.toLocaleString()}</span>
+                <span className="font-semibold">
+                  ¥{expense.amount.toLocaleString()}
+                </span>
                 <button
                   onClick={() => onDeleteExpense(expense.id)}
                   className="text-red-500 hover:text-red-700 text-sm"

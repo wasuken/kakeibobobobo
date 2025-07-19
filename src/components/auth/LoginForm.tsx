@@ -1,52 +1,52 @@
-import React, { useState } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
+import React, { useState } from "react";
+import { useAuth } from "../../contexts/AuthContext";
 
 export const LoginForm: React.FC = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [isSignup, setIsSignup] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  
+
   const { login, signup } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!email || !password) {
-      setError('メールアドレスとパスワードを入力してください');
+      setError("メールアドレスとパスワードを入力してください");
       return;
     }
 
     try {
-      setError('');
+      setError("");
       setLoading(true);
-      
+
       if (isSignup) {
         await signup(email, password);
       } else {
         await login(email, password);
       }
     } catch (error: any) {
-      console.error('認証エラー:', error);
-      
+      console.error("認証エラー:", error);
+
       // Firebase認証エラーの日本語化
       switch (error.code) {
-        case 'auth/user-not-found':
-        case 'auth/wrong-password':
-          setError('メールアドレスまたはパスワードが間違っています');
+        case "auth/user-not-found":
+        case "auth/wrong-password":
+          setError("メールアドレスまたはパスワードが間違っています");
           break;
-        case 'auth/email-already-in-use':
-          setError('このメールアドレスは既に使用されています');
+        case "auth/email-already-in-use":
+          setError("このメールアドレスは既に使用されています");
           break;
-        case 'auth/weak-password':
-          setError('パスワードは6文字以上で入力してください');
+        case "auth/weak-password":
+          setError("パスワードは6文字以上で入力してください");
           break;
-        case 'auth/invalid-email':
-          setError('無効なメールアドレスです');
+        case "auth/invalid-email":
+          setError("無効なメールアドレスです");
           break;
         default:
-          setError('認証に失敗しました。もう一度お試しください');
+          setError("認証に失敗しました。もう一度お試しください");
       }
     } finally {
       setLoading(false);
@@ -59,7 +59,7 @@ export const LoginForm: React.FC = () => {
         <div className="text-center mb-6">
           <h1 className="text-3xl font-bold text-gray-900">家計簿アプリ</h1>
           <p className="text-gray-600 mt-2">
-            {isSignup ? 'アカウントを作成' : 'ログイン'}
+            {isSignup ? "アカウントを作成" : "ログイン"}
           </p>
         </div>
 
@@ -71,7 +71,10 @@ export const LoginForm: React.FC = () => {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               メールアドレス
             </label>
             <input
@@ -86,7 +89,10 @@ export const LoginForm: React.FC = () => {
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               パスワード
             </label>
             <input
@@ -105,7 +111,7 @@ export const LoginForm: React.FC = () => {
             disabled={loading}
             className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
           >
-            {loading ? '処理中...' : (isSignup ? 'アカウント作成' : 'ログイン')}
+            {loading ? "処理中..." : isSignup ? "アカウント作成" : "ログイン"}
           </button>
         </form>
 
@@ -114,7 +120,9 @@ export const LoginForm: React.FC = () => {
             onClick={() => setIsSignup(!isSignup)}
             className="text-blue-600 hover:text-blue-800 text-sm"
           >
-            {isSignup ? 'すでにアカウントをお持ちですか？ログイン' : 'アカウントをお持ちでない方はこちら'}
+            {isSignup
+              ? "すでにアカウントをお持ちですか？ログイン"
+              : "アカウントをお持ちでない方はこちら"}
           </button>
         </div>
       </div>

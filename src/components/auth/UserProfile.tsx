@@ -1,6 +1,6 @@
-import React from 'react';
-import { useAuth } from '../../contexts/AuthContext';
-import { LogOut, User } from 'lucide-react';
+import React from "react";
+import { useAuth } from "../../contexts/AuthContext";
+import { LogOut, User } from "lucide-react";
 
 export const UserProfile: React.FC = () => {
   const { currentUser, logout } = useAuth();
@@ -9,7 +9,7 @@ export const UserProfile: React.FC = () => {
     try {
       await logout();
     } catch (error) {
-      console.error('ログアウトエラー:', error);
+      console.error("ログアウトエラー:", error);
     }
   };
 
@@ -21,7 +21,7 @@ export const UserProfile: React.FC = () => {
         <User className="w-5 h-5 text-gray-600" />
         <span className="text-sm text-gray-700">{currentUser.email}</span>
       </div>
-      
+
       <button
         onClick={handleLogout}
         className="flex items-center gap-1 text-red-600 hover:text-red-800 text-sm"

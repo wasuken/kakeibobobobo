@@ -1,16 +1,16 @@
 // 支出入力フォームコンポーネント
-import React, { useState } from 'react';
-import { Expense } from '../../types';
+import React, { useState } from "react";
+import { Expense } from "../../types";
 
 interface ExpenseFormProps {
-  onAddExpense: (expense: Omit<Expense, 'id' | 'createdAt'>) => void;
+  onAddExpense: (expense: Omit<Expense, "id" | "createdAt">) => void;
 }
 
 export const ExpenseForm: React.FC<ExpenseFormProps> = ({ onAddExpense }) => {
-  const [amount, setAmount] = useState('');
-  const [category, setCategory] = useState('食費');
-  const [description, setDescription] = useState('');
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+  const [amount, setAmount] = useState("");
+  const [category, setCategory] = useState("食費");
+  const [description, setDescription] = useState("");
+  const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,17 +20,17 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({ onAddExpense }) => {
       amount: parseInt(amount),
       category,
       description,
-      date
+      date,
     });
 
-    setAmount('');
-    setDescription('');
+    setAmount("");
+    setDescription("");
   };
 
   return (
     <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-md">
       <h2 className="text-xl font-semibold mb-4">支出を追加</h2>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">

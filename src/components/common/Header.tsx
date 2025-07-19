@@ -1,5 +1,5 @@
-import React from 'react';
-import { UserProfile } from '../auth/UserProfile';
+import React from "react";
+import { UserProfile } from "../auth/UserProfile";
 
 export const Header: React.FC = () => {
   return (

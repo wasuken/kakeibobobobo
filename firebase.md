@@ -137,7 +137,7 @@ n  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
 // Firebase設定の検証
 const requiredEnvVars = [
   'VITE_FIREBASE_API_KEY',
-  'VITE_FIREBASE_AUTH_DOMAIN', 
+  'VITE_FIREBASE_AUTH_DOMAIN',
   'VITE_FIREBASE_PROJECT_ID',
   'VITE_FIREBASE_STORAGE_BUCKET',
   'VITE_FIREBASE_MESSAGING_SENDER_ID',
@@ -178,16 +178,16 @@ export const checkFirebaseConfig = () => {
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {
-  readonly VITE_FIREBASE_API_KEY: string
-  readonly VITE_FIREBASE_AUTH_DOMAIN: string
-  readonly VITE_FIREBASE_PROJECT_ID: string
-  readonly VITE_FIREBASE_STORAGE_BUCKET: string
-  readonly VITE_FIREBASE_MESSAGING_SENDER_ID: string
-  readonly VITE_FIREBASE_APP_ID: string
+  readonly VITE_FIREBASE_API_KEY: string;
+  readonly VITE_FIREBASE_AUTH_DOMAIN: string;
+  readonly VITE_FIREBASE_PROJECT_ID: string;
+  readonly VITE_FIREBASE_STORAGE_BUCKET: string;
+  readonly VITE_FIREBASE_MESSAGING_SENDER_ID: string;
+  readonly VITE_FIREBASE_APP_ID: string;
 }
 
 interface ImportMeta {
-  readonly env: ImportMetaEnv
+  readonly env: ImportMetaEnv;
 }
 ```
 
@@ -247,7 +247,7 @@ VITE_FIREBASE_MEASUREMENT_ID=hogehoge
 
 ```typescript
 // アプリのエントリーポイントで確認
-import { checkFirebaseConfig } from './services/firebase';
+import { checkFirebaseConfig } from "./services/firebase";
 
 // アプリ起動時に実行
 checkFirebaseConfig();
@@ -257,16 +257,16 @@ checkFirebaseConfig();
 
 ```typescript
 // 簡単な認証テスト
-import { auth } from './services/firebase';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { auth } from "./services/firebase";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 
 const testAuth = async () => {
   try {
-    console.log('🔐 認証テスト開始');
-    console.log('Auth instance:', auth);
-    console.log('✅ 認証サービス初期化成功');
+    console.log("🔐 認証テスト開始");
+    console.log("Auth instance:", auth);
+    console.log("✅ 認証サービス初期化成功");
   } catch (error) {
-    console.error('❌ 認証エラー:', error);
+    console.error("❌ 認証エラー:", error);
   }
 };
 ```
@@ -275,16 +275,16 @@ const testAuth = async () => {
 
 ```typescript
 // 簡単なFirestoreテスト
-import { db } from './services/firebase';
-import { collection, addDoc } from 'firebase/firestore';
+import { db } from "./services/firebase";
+import { collection, addDoc } from "firebase/firestore";
 
 const testFirestore = async () => {
   try {
-    console.log('📊 Firestoreテスト開始');
-    console.log('Firestore instance:', db);
-    console.log('✅ Firestoreサービス初期化成功');
+    console.log("📊 Firestoreテスト開始");
+    console.log("Firestore instance:", db);
+    console.log("✅ Firestoreサービス初期化成功");
   } catch (error) {
-    console.error('❌ Firestoreエラー:', error);
+    console.error("❌ Firestoreエラー:", error);
   }
 };
 ```
@@ -296,6 +296,7 @@ const testFirestore = async () => {
 **症状**：`undefined` や空文字が表示される
 
 **原因と解決**：
+
 ```bash
 # 原因1: ファイル名が間違っている
 # 正しいファイル名: .env
@@ -311,11 +312,13 @@ npm run dev
 **原因と解決**：
 
 1. **Firestore Database未作成**
+
    ```
    Firebase Console → Firestore Database → 「データベースを作成」
    ```
 
 2. **Authentication未有効化**
+
    ```
    Firebase Console → Authentication → 「始める」
    ```
@@ -333,17 +336,17 @@ npm run dev
 ```typescript
 const getAuthErrorMessage = (errorCode: string) => {
   switch (errorCode) {
-    case 'auth/user-not-found':
-    case 'auth/wrong-password':
-      return 'メールアドレスまたはパスワードが間違っています';
-    case 'auth/email-already-in-use':
-      return 'このメールアドレスは既に使用されています';
-    case 'auth/weak-password':
-      return 'パスワードは6文字以上で入力してください';
-    case 'auth/invalid-email':
-      return '無効なメールアドレスです';
-    case 'auth/operation-not-allowed':
-      return 'この認証方法は有効化されていません';
+    case "auth/user-not-found":
+    case "auth/wrong-password":
+      return "メールアドレスまたはパスワードが間違っています";
+    case "auth/email-already-in-use":
+      return "このメールアドレスは既に使用されています";
+    case "auth/weak-password":
+      return "パスワードは6文字以上で入力してください";
+    case "auth/invalid-email":
+      return "無効なメールアドレスです";
+    case "auth/operation-not-allowed":
+      return "この認証方法は有効化されていません";
     default:
       return `認証エラー: ${errorCode}`;
   }
@@ -355,6 +358,7 @@ const getAuthErrorMessage = (errorCode: string) => {
 **症状**：`permission-denied` エラー
 
 **解決**：
+
 ```javascript
 // 開発時は一時的にテストモードに戻す
 rules_version = '2';
@@ -372,10 +376,11 @@ service cloud.firestore {
 **症状**：`network-request-failed`
 
 **解決**：
+
 ```typescript
 // タイムアウト設定
-import { connectAuthEmulator } from 'firebase/auth';
-import { connectFirestoreEmulator } from 'firebase/firestore';
+import { connectAuthEmulator } from "firebase/auth";
+import { connectFirestoreEmulator } from "firebase/firestore";
 
 // 開発環境でエミュレータ使用（オプション）
 if (import.meta.env.DEV) {
@@ -408,7 +413,7 @@ service cloud.firestore {
     match /users/{userId}/{document=**} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
     }
-    
+
     // 公開データ（もしあれば）
     match /public/{document=**} {
       allow read: if request.auth != null;

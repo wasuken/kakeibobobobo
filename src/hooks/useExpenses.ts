@@ -1,13 +1,13 @@
-import { useState, useEffect } from 'react';
-import { Expense } from '../types';
-import { useAuth } from '../contexts/AuthContext';
-import * as firestoreService from '../services/firestore';
+import { useState, useEffect } from "react";
+import { Expense } from "../types";
+import { useAuth } from "../contexts/AuthContext";
+import * as firestoreService from "../services/firestore";
 
 export const useExpenses = () => {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string>('');
-  
+  const [error, setError] = useState<string>("");
+
   const { currentUser } = useAuth();
 
   // 支出一覧を読み込み
@@ -23,28 +23,31 @@ export const useExpenses = () => {
       const userExpenses = await firestoreService.getExpenses(currentUser.uid);
       setExpenses(userExpenses);
     } catch (err) {
-      console.error('支出の読み込みに失敗:', err);
-      setError('支出の読み込みに失敗しました');
+      console.error("支出の読み込みに失敗:", err);
+      setError("支出の読み込みに失敗しました");
     } finally {
       setLoading(false);
     }
   };
 
   // 支出を追加
-  const addExpense = async (expense: Omit<Expense, 'id' | 'createdAt'>) => {
+  const addExpense = async (expense: Omit<Expense, "id" | "createdAt">) => {
     if (!currentUser) return;
 
     try {
-      const expenseId = await firestoreService.addExpense(currentUser.uid, expense);
+      const expenseId = await firestoreService.addExpense(
+        currentUser.uid,
+        expense,
+      );
       const newExpense: Expense = {
         ...expense,
         id: expenseId,
-        createdAt: new Date()
+        createdAt: new Date(),
       };
-      setExpenses(prev => [newExpense, ...prev]);
+      setExpenses((prev) => [newExpense, ...prev]);
     } catch (err) {
-      console.error('支出の追加に失敗:', err);
-      setError('支出の追加に失敗しました');
+      console.error("支出の追加に失敗:", err);
+      setError("支出の追加に失敗しました");
     }
   };
 
@@ -54,10 +57,10 @@ export const useExpenses = () => {
 
     try {
       await firestoreService.deleteExpense(currentUser.uid, expenseId);
-      setExpenses(prev => prev.filter(expense => expense.id !== expenseId));
+      setExpenses((prev) => prev.filter((expense) => expense.id !== expenseId));
     } catch (err) {
-      console.error('支出の削除に失敗:', err);
-      setError('支出の削除に失敗しました');
+      console.error("支出の削除に失敗:", err);
+      setError("支出の削除に失敗しました");
     }
   };
 
@@ -72,6 +75,6 @@ export const useExpenses = () => {
     error,
     addExpense,
     deleteExpense,
-    refreshExpenses: loadExpenses
+    refreshExpenses: loadExpenses,
   };
 };
