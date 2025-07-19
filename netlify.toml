@@ -1,0 +1,20 @@
+# netlify.toml (Netlify設定ファイル)
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "18"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[context.production.environment]
+  VITE_SHOW_SAMPLE_DATA_BUTTON = "false"
+  VITE_SHOW_DEBUG_INFO = "false"
+
+[context.deploy-preview.environment]
+  VITE_SHOW_SAMPLE_DATA_BUTTON = "true"
+  VITE_SHOW_DEBUG_INFO = "true"
