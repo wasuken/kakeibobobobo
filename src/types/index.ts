@@ -50,3 +50,18 @@ export const EXPENSE_CATEGORIES = [
   "医療費",
   "その他",
 ] as const;
+
+// チャート専用型定義
+export interface ChartConfig {
+  showMonthly: boolean;
+  showWeekly: boolean;
+  showTrend: boolean;
+  timeRange: "last3months" | "last6months" | "last12months";
+}
+
+export interface FinancialTrend {
+  period: string;
+  value: number;
+  changeFromPrevious: number;
+  changePercent: number;
+}

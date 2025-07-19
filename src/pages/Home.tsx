@@ -5,6 +5,7 @@ import { TransactionList } from "../components/common/TransactionList";
 import { useTransactions } from "../hooks/useTransactions";
 import SampleDataButton from "../components/dev/SampleDataButton";
 import TransactionCharts from "../components/charts/TransactionCharts";
+import DetailedCharts from "../components/charts/DetailedCharts";
 
 export const Home: React.FC = () => {
   const {
@@ -77,8 +78,14 @@ export const Home: React.FC = () => {
         </div>
 
         <div className="mb-8">
+          {/* 基本チャート */}
           <SampleDataButton />
           <TransactionCharts transactions={transactions} />
+
+          {/* 詳細チャート（新規追加） */}
+          <div className="mt-8">
+            <DetailedCharts transactions={transactions} />
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
