@@ -65,3 +65,27 @@ export interface FinancialTrend {
   changeFromPrevious: number;
   changePercent: number;
 }
+
+// パネルナビゲーション用型定義
+export type NavigationSection =
+  | "dashboard"
+  | "transactions"
+  | "charts"
+  | "analytics";
+
+export interface PanelConfig {
+  key: NavigationSection;
+  label: string;
+  description: string;
+  icon: string;
+  color: string;
+}
+
+// AIアドバイス用型定義
+export interface FinancialAdvice {
+  type: "success" | "warning" | "info";
+  title: string;
+  message: string;
+  actionable?: boolean;
+  priority?: "high" | "medium" | "low";
+}

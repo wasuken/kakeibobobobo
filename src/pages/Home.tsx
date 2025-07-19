@@ -1,13 +1,19 @@
-import React from "react";
+import React, { useState } from "react";
 import { Header } from "../components/common/Header";
-import { TransactionForm } from "../components/forms/TransactionForm";
-import { TransactionList } from "../components/common/TransactionList";
 import { useTransactions } from "../hooks/useTransactions";
 import SampleDataButton from "../components/dev/SampleDataButton";
-import TransactionCharts from "../components/charts/TransactionCharts";
-import DetailedCharts from "../components/charts/DetailedCharts";
+import NavigationTabs, {
+  SectionKey,
+} from "../components/navigation/NavigationTabs";
+import DashboardPanel from "../components/panels/DashboardPanel";
+import TransactionsPanel from "../components/panels/TransactionsPanel";
+import ChartsPanel from "../components/panels/ChartsPanel";
+import AnalyticsPanel from "../components/panels/AnalyticsPanel";
+import LoadingSpinner from "../components/common/LoadingSpinner";
 
 export const Home: React.FC = () => {
+  const [activeSection, setActiveSection] = useState<SectionKey>("dashboard");
+
   const {
     transactions,
     addTransaction,
@@ -18,11 +24,15 @@ export const Home: React.FC = () => {
     error,
   } = useTransactions();
 
+  const handleSectionChange = (section: SectionKey) => {
+    setActiveSection(section);
+  };
+
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-50">
       <Header />
 
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-6">
         {/* エラー表示 */}
         {error && (
           <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
@@ -51,25 +61,69 @@ export const Home: React.FC = () => {
           </div>
         )}
 
-        {/* 手動リフレッシュボタン */}
-        <div className="flex justify-end mb-4">
+        {/* 開発者用サンプルデータボタン */}
+        <SampleDataButton />
+
+        {/* メインナビゲーション */}
+        <NavigationTabs
+          activeSection={activeSection}
+          onSectionChange={handleSectionChange}
+        />
+
+        {/* ローディング表示 */}
+        {loading && (
+          <div className="bg-white rounded-lg shadow-sm p-8 text-center">
+            <LoadingSpinner type="data" size="lg" />
+          </div>
+        )}
+
+        {/* パネル表示（ローディング中は非表示） */}
+        {!loading && (
+          <>
+            {activeSection === "dashboard" && (
+              <DashboardPanel
+                transactions={transactions}
+                onSectionChange={handleSectionChange}
+              />
+            )}
+
+            {activeSection === "transactions" && (
+              <TransactionsPanel
+                transactions={transactions}
+                onAddTransaction={addTransaction}
+                onDeleteTransaction={deleteTransaction}
+              />
+            )}
+
+            {activeSection === "charts" && (
+              <ChartsPanel transactions={transactions} />
+            )}
+
+            {activeSection === "analytics" && (
+              <AnalyticsPanel transactions={transactions} />
+            )}
+          </>
+        )}
+
+        {/* 手動更新ボタン（フッター） */}
+        <div className="mt-8 flex justify-center">
           <div className="flex space-x-2">
             <button
               onClick={refreshTransactions}
               disabled={loading}
-              className={`flex items-center space-x-1 px-3 py-2 rounded text-sm transition-colors ${
+              className={`flex items-center space-x-1 px-4 py-2 rounded-lg text-sm transition-colors ${
                 loading
                   ? "bg-gray-400 text-white cursor-not-allowed"
-                  : "bg-blue-500 hover:bg-blue-600 text-white"
+                  : "bg-blue-500 hover:bg-blue-600 text-white shadow-sm"
               }`}
             >
               <span>🔄</span>
-              <span>{loading ? "データ取得中..." : "データ更新"}</span>
+              <span>{loading ? "更新中..." : "データ更新"}</span>
             </button>
 
             <button
               onClick={forceReload}
-              className="flex items-center space-x-1 px-3 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded text-sm"
+              className="flex items-center space-x-1 px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg text-sm shadow-sm"
             >
               <span>↻</span>
               <span>ページリロード</span>
@@ -77,34 +131,11 @@ export const Home: React.FC = () => {
           </div>
         </div>
 
-        <div className="mb-8">
-          {/* 基本チャート */}
-          <SampleDataButton />
-          <TransactionCharts transactions={transactions} />
-
-          {/* 詳細チャート（新規追加） */}
-          <div className="mt-8">
-            <DetailedCharts transactions={transactions} />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div>
-            <TransactionForm onAddTransaction={addTransaction} />
-          </div>
-
-          <div>
-            <TransactionList
-              transactions={transactions}
-              onDeleteTransaction={deleteTransaction}
-            />
-          </div>
-        </div>
-
-        {/* データ取得状況表示（開発環境のみ） */}
+        {/* デバッグ情報（開発環境のみ） */}
         {!import.meta.env.PROD && (
-          <div className="mt-8 bg-gray-100 p-4 rounded text-sm text-gray-600">
-            <h4 className="font-medium">🔧 デバッグ情報</h4>
+          <div className="mt-6 bg-gray-800 text-green-400 p-4 rounded-lg text-sm font-mono">
+            <h4 className="font-bold mb-2">🔧 デバッグ情報</h4>
+            <p>現在のセクション: {activeSection}</p>
             <p>取引件数: {transactions.length}件</p>
             <p>読み込み状態: {loading ? "読み込み中" : "完了"}</p>
             <p>エラー: {error || "なし"}</p>
