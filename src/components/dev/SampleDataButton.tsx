@@ -7,6 +7,9 @@ const SampleDataButton: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState("");
 
+  // 環境変数でボタン表示を制御
+  const showButton = import.meta.env.VITE_SHOW_SAMPLE_DATA_BUTTON === "true";
+
   const handleAddSampleData = async () => {
     if (!currentUser) {
       setMessage("ログインが必要です");
@@ -27,8 +30,8 @@ const SampleDataButton: React.FC = () => {
     }
   };
 
-  // 開発環境でのみ表示
-  if (import.meta.env.PROD) {
+  // 環境変数でfalseの場合は何も表示しない
+  if (!showButton) {
     return null;
   }
 
@@ -39,6 +42,9 @@ const SampleDataButton: React.FC = () => {
           <h3 className="text-sm font-medium text-yellow-800">開発者モード</h3>
           <p className="text-sm text-yellow-700 mt-1">
             収支チャート表示のためのサンプルデータを追加できます
+          </p>
+          <p className="text-xs text-yellow-600 mt-1">
+            環境変数 VITE_SHOW_SAMPLE_DATA_BUTTON で制御中
           </p>
         </div>
         <button

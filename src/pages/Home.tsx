@@ -132,13 +132,23 @@ export const Home: React.FC = () => {
         </div>
 
         {/* デバッグ情報（開発環境のみ） */}
-        {!import.meta.env.PROD && (
+        {import.meta.env.VITE_SHOW_DEBUG_INFO && (
           <div className="mt-6 bg-gray-800 text-green-400 p-4 rounded-lg text-sm font-mono">
             <h4 className="font-bold mb-2">🔧 デバッグ情報</h4>
             <p>現在のセクション: {activeSection}</p>
             <p>取引件数: {transactions.length}件</p>
             <p>読み込み状態: {loading ? "読み込み中" : "完了"}</p>
             <p>エラー: {error || "なし"}</p>
+            <div className="mt-2 text-xs text-gray-400">
+              <p>
+                環境変数制御: VITE_SHOW_DEBUG_INFO ={" "}
+                {import.meta.env.VITE_SHOW_DEBUG_INFO}
+              </p>
+              <p>
+                サンプルボタン: VITE_SHOW_SAMPLE_DATA_BUTTON ={" "}
+                {import.meta.env.VITE_SHOW_SAMPLE_DATA_BUTTON}
+              </p>
+            </div>
           </div>
         )}
       </div>
